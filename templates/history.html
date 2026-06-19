@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Invoice History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <div class="max-w-6xl mx-auto mt-10">
+
+        <h1 class="text-3xl font-bold mb-6">
+            Invoice History
+        </h1>
+        <form method="GET" action="/history" class="mb-4">
+
+            <input type="text" name="search" placeholder="Search Invoice Number or Customer"
+                class="border p-2 rounded w-80">
+
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
+
+                Search
+
+            </button>
+
+        </form>
+
+        <table class="w-full bg-white shadow rounded">
+
+            <thead>
+                <tr class="bg-gray-200">
+
+                    <th class="p-3">Invoice No</th>
+                    <th class="p-3">Date</th>
+                    <th class="p-3">Customer</th>
+                    <th class="p-3">Product</th>
+                    <th class="p-3">Total</th>
+
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for invoice in invoices %}
+
+                <tr class="border-b">
+
+                    <td class="p-3">
+                        {{ invoice.invoice_number }}
+                    </td>
+
+                    <td class="p-3">
+                        {{ invoice.invoice_date }}
+                    </td>
+
+                    <td class="p-3">
+                        {{ invoice.customer }}
+                    </td>
+
+                    <td class="p-3">
+                        {{ invoice.product }}
+                    </td>
+
+                    <td class="p-3">
+                        INR {{ invoice.total }}
+                    </td>
+                    <td class="p-3">
+                        <a href="/delete/{{ invoice._id }}" class="bg-red-500 text-white px-3 py-1 rounded">
+                            Delete
+                        </a>
+                    </td>
+                    <td class="p-3">
+                        <a href="/edit/{{ invoice._id }}" class="bg-yellow-500 text-white px-3 py-1 rounded">
+                            Edit
+                        </a>
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <div class="max-w-6xl mx-auto mt-10">
+
+        <h1 class="text-3xl font-bold mb-6">
+            Invoice Dashboard
+        </h1>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 gap-6 mb-8">
+
+            <div class="bg-white p-6 rounded shadow">
+                <h2 class="text-xl font-bold">Total Invoices</h2>
+                <p class="text-3xl mt-2">
+                    {{ total_invoices }}
+                </p>
+            </div>
+
+            <div class="bg-white p-6 rounded shadow">
+                <h2 class="text-xl font-bold">Total Revenue</h2>
+                <p class="text-3xl mt-2">
+                    INR {{ total_revenue }}
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Buttons -->
+        <div class="space-x-4">
+
+            <a href="/form" class="bg-blue-600 text-white px-4 py-2 rounded">
+                Generate Invoice
+            </a>
+
+            <a href="/history" class="bg-green-600 text-white px-4 py-2 rounded">
+                View History
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

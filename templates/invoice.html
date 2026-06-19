@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<div class="max-w-4xl mx-auto mt-10 bg-white shadow-lg rounded-lg p-8">
+
+    <!-- HEADER -->
+    <div class="flex justify-between items-center border-b pb-4">
+        <div>
+            <h1 class="text-2xl font-bold">INVOICE</h1>
+            <p class="text-gray-500">Invoice Management System</p>
+        </div>
+
+        <div class="text-right">
+            <p><b>Invoice No:</b> {{ invoice.invoice_number }}</p>
+            <p><b>Date:</b> {{ invoice.invoice_date }}</p>
+        </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="grid grid-cols-2 gap-6 mt-6">
+
+        <!-- CUSTOMER INFO -->
+        <div>
+            <h2 class="font-bold text-gray-700 mb-2">Customer Details</h2>
+            <p>{{ invoice.customer }}</p>
+        </div>
+
+        <!-- PRODUCT INFO -->
+        <div>
+            <h2 class="font-bold text-gray-700 mb-2">Product Details</h2>
+            <p><b>Product:</b> {{ invoice.product }}</p>
+            <p><b>Quantity:</b> {{ invoice.quantity }}</p>
+            <p><b>Price:</b> ₹{{ invoice.price }}</p>
+        </div>
+
+    </div>
+
+    <!-- TOTAL BAR -->
+    <div class="mt-8 flex justify-between items-center bg-gray-100 p-4 rounded">
+
+        <h2 class="text-lg font-bold">Total Amount</h2>
+
+        <h2 class="text-2xl font-bold text-green-600">
+            ₹{{ invoice.total }}
+        </h2>
+
+    </div>
+
+    <!-- BUTTON -->
+    <div class="mt-6 text-right">
+
+        <a href="/download/{{ invoice.invoice_number }}"
+           class="bg-green-600 text-white px-5 py-2 rounded">
+            Download PDF
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

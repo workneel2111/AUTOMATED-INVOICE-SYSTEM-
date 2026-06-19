@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Invoice Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<div class="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow">
+
+{% if found %}
+
+<h1 class="text-2xl font-bold text-green-600 mb-4">
+✅ Invoice Verified
+</h1>
+
+<p><b>Invoice Number:</b> {{ invoice.invoice_number }}</p>
+
+<p><b>Customer:</b> {{ invoice.customer }}</p>
+
+<p><b>Product:</b> {{ invoice.product }}</p>
+
+<p><b>Total:</b> ₹{{ invoice.total }}</p>
+
+<p><b>Date:</b> {{ invoice.invoice_date }}</p>
+
+{% else %}
+
+<h1 class="text-2xl font-bold text-red-600">
+❌ Invalid Invoice
+</h1>
+
+<p>
+This invoice does not exist.
+</p>
+
+{% endif %}
+<span class="bg-green-500 text-white px-3 py-1 rounded">
+Verified Invoice
+</span>
+
+</div>
+
+</body>
+</html>
