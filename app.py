@@ -97,7 +97,7 @@ def generate():
 def download(invoice_number):
 
     invoice = collection.find_one({"invoice_number": invoice_number})
-    qr_data = f"http://127.0.0.1:5000/verify/{invoice['invoice_number']}"
+    qr_data = f"https://automated-invoice-system-xdxn.onrender.com"
     qr = qrcode.make(qr_data)
 
     qr_path = f"invoices/{invoice_number}_qr.png"
