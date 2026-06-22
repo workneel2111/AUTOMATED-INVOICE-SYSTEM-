@@ -98,19 +98,21 @@ def generate():
 def download(invoice_number):
 
     invoice = collection.find_one({"invoice_number": invoice_number})
-    qr_data = f"https://automated-invoice-system-xdxn.onrender.com"
-    qr = qrcode.make(qr_data)
-
-    qr_path = f"invoices/{invoice_number}_qr.png"
-
-    qr.save(qr_path)
 
     if not invoice:
         return "Invoice not found"
 
-    if not os.path.exists("invoices"):
-        os.makedirs("invoices")
+    # Create invoices directory first
+    os.makedirs("invoices", exist_ok=True)
 
+    # Generate QR code
+    qr_data = f"https://automated-invoice-system-xdxn.onrender.com/verify/{invoice_number}"
+    qr = qrcode.make(qr_data)
+
+    qr_path = f"invoices/{invoice_number}_qr.png"
+    qr.save(qr_path)
+
+    # PDF file path
     file_path = f"invoices/{invoice_number}.pdf"
 
     c = canvas.Canvas(file_path)
@@ -126,13 +128,14 @@ def download(invoice_number):
     c.drawString(100, 680, f"Qty: {invoice['quantity']}")
     c.drawString(100, 660, f"Price: Rs.{invoice['price']}")
     c.drawString(100, 640, f"Total: Rs.{invoice['total']}")
+
     c.drawImage(
-    qr_path,
-    400,
-    620,
-    width=120,
-    height=120
-)
+        qr_path,
+        400,
+        620,
+        width=120,
+        height=120
+    )
 
     c.save()
 
