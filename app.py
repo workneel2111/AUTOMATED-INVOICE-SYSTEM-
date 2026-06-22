@@ -21,6 +21,7 @@ app.permanent_session_lifetime = timedelta(hours=2)
 bcrypt = Bcrypt(app)
 
 # ---------------- DATABASE ----------------
+print("MONGO_URI =", os.getenv("MONGO_URI"))
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client["invoice_db"]
 collection = db["invoices"]
