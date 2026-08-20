@@ -14,7 +14,8 @@ import secrets
 import hashlib
 import smtplib
 from email.message import EmailMessage
-
+import smtplib
+from email.message import EmailMessage
 load_dotenv()
 
 # ---------------- APP SETUP ----------------
@@ -31,6 +32,41 @@ db = client["invoice_db"]
 collection = db["invoices"]
 users = db["users"]
 password_resets = db["password_resets"]
+def send_reset_email(receiver_email, reset_link):
+
+    msg = EmailMessage()
+
+    msg["Subject"] = "Password Reset - Automated Invoice System"
+    msg["From"] = os.getenv("MAIL_EMAIL")
+    msg["To"] = receiver_email
+
+    msg.set_content(f"""
+Hello,
+
+We received a request to reset your password.
+
+Click the link below to reset your password:
+
+{reset_link}
+
+This link will expire in 15 minutes.
+
+If you did not request a password reset, you can safely ignore this email.
+
+Regards,
+Automated Invoice System
+""")
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+
+        smtp.login(
+            os.getenv("MAIL_EMAIL"),
+            os.getenv("MAIL_PASSWORD")
+        )
+
+        smtp.send_message(msg)
+
+
 
 
 # ---------------- JWT DECORATOR ----------------
@@ -229,7 +265,7 @@ def register():
 
         users.insert_one({
     "username": request.form["username"],
-    "email": request.form["email"],
+    "email": request.form["email"].strip().lower(),
     "password": hashed
 })
 
@@ -261,7 +297,156 @@ def login():
         return "Invalid Credentials"
 
     return render_template("login.html")
+# ---------------- FORGOT PASSWORD ----------------
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
 
+    if request.method == "POST":
+
+        email = request.form["email"].strip().lower()
+
+        # Find user by email
+        user = users.find_one({"email": email})
+
+        # Do not reveal whether email exists
+        if not user:
+            return render_template(
+                "forgot_password.html",
+                message="If this email is registered, a reset link has been sent."
+            )
+
+        # Generate secure random token
+        token = secrets.token_urlsafe(32)
+
+        # Hash token before storing in database
+        token_hash = hashlib.sha256(
+            token.encode()
+        ).hexdigest()
+
+        # Token expires after 15 minutes
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+
+        # Delete old reset tokens for this user
+        password_resets.delete_many({
+            "user_id": user["_id"]
+        })
+
+        # Store reset information
+        password_resets.insert_one({
+            "user_id": user["_id"],
+            "token_hash": token_hash,
+            "expires_at": expires_at,
+            "used": False,
+            "created_at": datetime.now(timezone.utc)
+        })
+
+        # Create password reset link
+        reset_link = url_for(
+            "reset_password",
+            token=token,
+            _external=True
+        )
+
+        # Send email
+        try:
+
+            send_reset_email(
+                user["email"],
+                reset_link
+            )
+
+        except Exception as e:
+
+            print("Email sending error:", e)
+
+        return render_template(
+            "forgot_password.html",
+            message="If this email is registered, a reset link has been sent."
+        )
+
+    return render_template("forgot_password.html")
+
+# ---------------- RESET PASSWORD ----------------
+@app.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+
+    # Get token from URL
+    token = request.args.get("token")
+
+    if not token:
+        return "Invalid password reset link"
+
+    # Hash the token received from the URL
+    token_hash = hashlib.sha256(
+        token.encode()
+    ).hexdigest()
+
+    # Find token in database
+    reset_record = password_resets.find_one({
+        "token_hash": token_hash,
+        "used": False
+    })
+
+    # Token doesn't exist or was already used
+    if not reset_record:
+        return "Invalid or expired password reset link"
+
+    # Check token expiry
+    if reset_record["expires_at"] < datetime.now(timezone.utc):
+
+        password_resets.delete_one({
+            "_id": reset_record["_id"]
+        })
+
+        return "Password reset link has expired"
+
+    # If user submitted new password
+    if request.method == "POST":
+
+        new_password = request.form["password"]
+
+        # Basic password validation
+        if len(new_password) < 8:
+
+            return render_template(
+                "reset_password.html",
+                token=token,
+                error="Password must be at least 8 characters."
+            )
+
+        # Hash new password using bcrypt
+        hashed_password = bcrypt.generate_password_hash(
+            new_password
+        ).decode("utf-8")
+
+        # Update user's password
+        users.update_one(
+            {"_id": reset_record["user_id"]},
+            {
+                "$set": {
+                    "password": hashed_password
+                }
+            }
+        )
+
+        # Make token unusable
+        password_resets.update_one(
+            {"_id": reset_record["_id"]},
+            {
+                "$set": {
+                    "used": True
+                }
+            }
+        )
+
+        # Redirect user to login
+        return redirect(url_for("login"))
+
+    # Show reset password page
+    return render_template(
+        "reset_password.html",
+        token=token
+    )
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
