@@ -4,12 +4,16 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from functools import wraps
 from reportlab.pdfgen import canvas
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import jwt
 import os
 import qrcode
 from dotenv import load_dotenv
 import os
+import secrets
+import hashlib
+import smtplib
+from email.message import EmailMessage
 
 load_dotenv()
 
@@ -26,6 +30,7 @@ client = MongoClient(os.getenv("MONGO_URI"))
 db = client["invoice_db"]
 collection = db["invoices"]
 users = db["users"]
+password_resets = db["password_resets"]
 
 
 # ---------------- JWT DECORATOR ----------------
@@ -223,9 +228,10 @@ def register():
         hashed = bcrypt.generate_password_hash(request.form["password"]).decode("utf-8")
 
         users.insert_one({
-            "username": request.form["username"],
-            "password": hashed
-        })
+    "username": request.form["username"],
+    "email": request.form["email"],
+    "password": hashed
+})
 
         return redirect(url_for("login"))
 
