@@ -1,41 +1,531 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Invoice Generator</title>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Invoice | Automated Invoice System</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
 
-<body class="bg-gray-100">
 
-<div class="max-w-md mx-auto mt-10 bg-white p-6 rounded-lg shadow">
+<body class="bg-gray-100 min-h-screen">
 
-    <h1 class="text-2xl font-bold text-center mb-6">
-        Invoice Generator
-    </h1>
 
-    <form action="/generate" method="POST">
+    <!-- ================= NAVBAR ================= -->
 
-        <input type="text" name="customer" placeholder="Customer Name"
-               class="w-full border p-2 rounded mb-3" required>
+    <nav class="bg-white border-b">
 
-        <input type="text" name="product" placeholder="Product Name"
-               class="w-full border p-2 rounded mb-3" required>
+        <div class="max-w-6xl mx-auto px-6 py-4
+                    flex items-center justify-between">
 
-        <input type="number" name="quantity" placeholder="Quantity"
-               class="w-full border p-2 rounded mb-3" required>
+            <!-- Logo -->
 
-        <input type="number" name="price" placeholder="Price"
-               class="w-full border p-2 rounded mb-3" required>
+            <div class="flex items-center gap-3">
 
-        <button type="submit"
-                class="w-full bg-blue-600 text-white p-2 rounded">
-            Generate Invoice
-        </button>
+                <div class="w-10 h-10 bg-blue-600 text-white
+                            rounded-lg flex items-center justify-center
+                            font-bold text-xl">
+                    ₹
+                </div>
 
-    </form>
+                <div>
 
-</div>
+                    <h1 class="font-bold text-gray-800">
+                        Automated Invoice
+                    </h1>
+
+                    <p class="text-xs text-gray-500">
+                        Invoice Management System
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Navigation -->
+
+            <div class="flex items-center gap-2 sm:gap-4">
+
+                <a
+                    href="{{ url_for('home') }}"
+                    class="hidden sm:block text-sm text-gray-600
+                           hover:text-blue-600 font-medium"
+                >
+                    Dashboard
+                </a>
+
+                <a
+                    href="{{ url_for('history') }}"
+                    class="text-sm text-gray-600
+                           hover:text-blue-600 font-medium"
+                >
+                    History
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="max-w-4xl mx-auto px-6 py-10">
+
+
+        <!-- Page Header -->
+
+        <div class="mb-8">
+
+            <p class="text-sm text-blue-600 font-semibold">
+                INVOICE MANAGEMENT
+            </p>
+
+            <h2 class="text-3xl font-bold text-gray-800 mt-1">
+                Create New Invoice
+            </h2>
+
+            <p class="text-gray-500 mt-2">
+                Enter the customer and product details below
+                to generate a professional invoice.
+            </p>
+
+        </div>
+
+
+        <!-- ================= FORM CARD ================= -->
+
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+
+
+            <!-- Card Header -->
+
+            <div class="bg-gradient-to-r from-blue-600 to-blue-500
+                        text-white p-6">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 bg-white/20
+                                rounded-xl flex items-center justify-center
+                                text-2xl">
+
+                        ₹
+
+                    </div>
+
+                    <div>
+
+                        <h3 class="text-lg font-bold">
+                            Invoice Information
+                        </h3>
+
+                        <p class="text-sm text-blue-100">
+                            Fill in the details carefully before generating.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= FORM ================= -->
+
+            <form
+                action="{{ url_for('generate') }}"
+                method="POST"
+                class="p-6 sm:p-8"
+            >
+
+
+                <!-- ================= CUSTOMER SECTION ================= -->
+
+                <div class="mb-8">
+
+                    <div class="flex items-center gap-3 mb-5">
+
+                        <div class="w-9 h-9 bg-blue-100
+                                    text-blue-600 rounded-lg
+                                    flex items-center justify-center">
+
+                            👤
+
+                        </div>
+
+                        <div>
+
+                            <h3 class="font-bold text-gray-800">
+                                Customer Details
+                            </h3>
+
+                            <p class="text-xs text-gray-500">
+                                Enter the customer's information.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <label
+                            for="customer"
+                            class="block text-sm font-semibold
+                                   text-gray-700 mb-2"
+                        >
+
+                            Customer Name
+
+                        </label>
+
+                        <input
+                            type="text"
+                            id="customer"
+                            name="customer"
+                            placeholder="Enter customer name"
+                            required
+                            autocomplete="off"
+                            class="w-full px-4 py-3 border border-gray-300
+                                   rounded-lg outline-none transition
+                                   focus:ring-2 focus:ring-blue-500
+                                   focus:border-blue-500"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================= PRODUCT SECTION ================= -->
+
+                <div class="mb-8">
+
+                    <div class="flex items-center gap-3 mb-5">
+
+                        <div class="w-9 h-9 bg-blue-100
+                                    text-blue-600 rounded-lg
+                                    flex items-center justify-center">
+
+                            📦
+
+                        </div>
+
+                        <div>
+
+                            <h3 class="font-bold text-gray-800">
+                                Product Details
+                            </h3>
+
+                            <p class="text-xs text-gray-500">
+                                Enter the item and pricing information.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Product -->
+
+                    <div class="mb-5">
+
+                        <label
+                            for="product"
+                            class="block text-sm font-semibold
+                                   text-gray-700 mb-2"
+                        >
+
+                            Product / Service
+
+                        </label>
+
+                        <input
+                            type="text"
+                            id="product"
+                            name="product"
+                            placeholder="Enter product or service name"
+                            required
+                            autocomplete="off"
+                            class="w-full px-4 py-3 border border-gray-300
+                                   rounded-lg outline-none transition
+                                   focus:ring-2 focus:ring-blue-500
+                                   focus:border-blue-500"
+                        >
+
+                    </div>
+
+
+                    <!-- Quantity + Price -->
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+
+                        <!-- Quantity -->
+
+                        <div>
+
+                            <label
+                                for="quantity"
+                                class="block text-sm font-semibold
+                                       text-gray-700 mb-2"
+                            >
+
+                                Quantity
+
+                            </label>
+
+                            <input
+                                type="number"
+                                id="quantity"
+                                name="quantity"
+                                placeholder="0"
+                                min="1"
+                                step="1"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300
+                                       rounded-lg outline-none transition
+                                       focus:ring-2 focus:ring-blue-500
+                                       focus:border-blue-500"
+                            >
+
+                        </div>
+
+
+                        <!-- Price -->
+
+                        <div>
+
+                            <label
+                                for="price"
+                                class="block text-sm font-semibold
+                                       text-gray-700 mb-2"
+                            >
+
+                                Price per Unit
+
+                            </label>
+
+                            <div class="relative">
+
+                                <span class="absolute left-4 top-1/2
+                                             -translate-y-1/2
+                                             text-gray-500 font-medium">
+
+                                    ₹
+
+                                </span>
+
+                                <input
+                                    type="number"
+                                    id="price"
+                                    name="price"
+                                    placeholder="0.00"
+                                    min="0"
+                                    step="0.01"
+                                    required
+                                    class="w-full px-4 py-3 pl-9
+                                           border border-gray-300
+                                           rounded-lg outline-none transition
+                                           focus:ring-2 focus:ring-blue-500
+                                           focus:border-blue-500"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================= TOTAL PREVIEW ================= -->
+
+                <div class="bg-gray-50 border border-gray-200
+                            rounded-xl p-5 mb-8">
+
+
+                    <div class="flex justify-between
+                                items-center">
+
+                        <div>
+
+                            <p class="text-sm text-gray-500">
+                                Estimated Total
+                            </p>
+
+                            <p class="text-xs text-gray-400 mt-1">
+                                Quantity × Price
+                            </p>
+
+                        </div>
+
+
+                        <div>
+
+                            <p
+                                id="totalPreview"
+                                class="text-2xl font-bold text-blue-600"
+                            >
+                                ₹0.00
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- ================= BUTTONS ================= -->
+
+                <div class="flex flex-col-reverse sm:flex-row
+                            gap-3">
+
+
+                    <a
+                        href="{{ url_for('history') }}"
+                        class="w-full sm:w-auto px-6 py-3
+                               border border-gray-300
+                               bg-white rounded-lg
+                               text-gray-700 font-semibold
+                               text-center
+                               hover:bg-gray-50 transition"
+                    >
+
+                        Cancel
+
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="w-full sm:flex-1
+                               bg-blue-600 hover:bg-blue-700
+                               text-white font-semibold
+                               py-3 rounded-lg
+                               transition duration-200
+                               shadow-sm hover:shadow-md"
+                    >
+
+                        Generate Invoice →
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
+
+        </div>
+
+
+        <!-- ================= INFO ================= -->
+
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+
+            <div class="bg-white rounded-xl p-4 border">
+
+                <p class="text-sm font-semibold text-gray-700">
+                    📄 PDF
+                </p>
+
+                <p class="text-xs text-gray-500 mt-1">
+                    Download professional invoices.
+                </p>
+
+            </div>
+
+
+            <div class="bg-white rounded-xl p-4 border">
+
+                <p class="text-sm font-semibold text-gray-700">
+                    🔳 QR Verification
+                </p>
+
+                <p class="text-xs text-gray-500 mt-1">
+                    Verify invoices using QR codes.
+                </p>
+
+            </div>
+
+
+            <div class="bg-white rounded-xl p-4 border">
+
+                <p class="text-sm font-semibold text-gray-700">
+                    🔐 Secure
+                </p>
+
+                <p class="text-xs text-gray-500 mt-1">
+                    Protected invoice management.
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+    </main>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+        const quantityInput =
+            document.getElementById("quantity");
+
+        const priceInput =
+            document.getElementById("price");
+
+        const totalPreview =
+            document.getElementById("totalPreview");
+
+
+        function calculateTotal() {
+
+            const quantity =
+                parseFloat(quantityInput.value) || 0;
+
+            const price =
+                parseFloat(priceInput.value) || 0;
+
+            const total =
+                quantity * price;
+
+            totalPreview.textContent =
+                "₹" + total.toFixed(2);
+
+        }
+
+
+        quantityInput.addEventListener(
+            "input",
+            calculateTotal
+        );
+
+        priceInput.addEventListener(
+            "input",
+            calculateTotal
+        );
+
+    </script>
+
 
 </body>
+
 </html>

@@ -17,6 +17,8 @@ from email.message import EmailMessage
 import smtplib
 from email.message import EmailMessage
 load_dotenv()
+print("MAIL_EMAIL:", os.getenv("MAIL_EMAIL"))
+print("MAIL_PASSWORD EXISTS:", bool(os.getenv("MAIL_PASSWORD")))
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
@@ -367,87 +369,100 @@ def forgot_password():
     return render_template("forgot_password.html")
 
 # ---------------- RESET PASSWORD ----------------
+# ---------------- RESET PASSWORD ----------------
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
 
-    # Get token from URL
     token = request.args.get("token")
 
     if not token:
-        return "Invalid password reset link"
+        return "Invalid password reset link", 400
 
-    # Hash the token received from the URL
+    # Hash token from URL
     token_hash = hashlib.sha256(
         token.encode()
     ).hexdigest()
 
-    # Find token in database
+    # Find reset token
     reset_record = password_resets.find_one({
         "token_hash": token_hash,
         "used": False
     })
 
-    # Token doesn't exist or was already used
     if not reset_record:
-        return "Invalid or expired password reset link"
+        return "Invalid or expired password reset link", 400
 
     # Check token expiry
-    if reset_record["expires_at"] < datetime.now(timezone.utc):
+    expires_at = reset_record["expires_at"]
+
+    # MongoDB may return a timezone-naive datetime
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+    if expires_at < datetime.now(timezone.utc):
 
         password_resets.delete_one({
             "_id": reset_record["_id"]
         })
 
-        return "Password reset link has expired"
+        return "Password reset link has expired", 400
 
-    # If user submitted new password
-    if request.method == "POST":
+    # GET request → show reset page
+    if request.method == "GET":
 
-        new_password = request.form["password"]
-
-        # Basic password validation
-        if len(new_password) < 8:
-
-            return render_template(
-                "reset_password.html",
-                token=token,
-                error="Password must be at least 8 characters."
-            )
-
-        # Hash new password using bcrypt
-        hashed_password = bcrypt.generate_password_hash(
-            new_password
-        ).decode("utf-8")
-
-        # Update user's password
-        users.update_one(
-            {"_id": reset_record["user_id"]},
-            {
-                "$set": {
-                    "password": hashed_password
-                }
-            }
+        return render_template(
+            "reset_password.html",
+            token=token
         )
 
-        # Make token unusable
-        password_resets.update_one(
-            {"_id": reset_record["_id"]},
-            {
-                "$set": {
-                    "used": True
-                }
-            }
+    # POST request → change password
+    new_password = request.form.get("password", "")
+    confirm_password = request.form.get("confirm_password", "")
+
+    # Check password length
+    if len(new_password) < 8:
+
+        return render_template(
+            "reset_password.html",
+            token=token,
+            error="Password must be at least 8 characters."
         )
 
-        # Redirect user to login
-        return redirect(url_for("login"))
+    # Check password confirmation
+    if new_password != confirm_password:
 
-    # Show reset password page
-    return render_template(
-        "reset_password.html",
-        token=token
+        return render_template(
+            "reset_password.html",
+            token=token,
+            error="Passwords do not match."
+        )
+
+    # Hash new password
+    hashed_password = bcrypt.generate_password_hash(
+        new_password
+    ).decode("utf-8")
+
+    # Update user password
+    users.update_one(
+        {"_id": reset_record["user_id"]},
+        {
+            "$set": {
+                "password": hashed_password
+            }
+        }
     )
 
+    # Make reset token single-use
+    password_resets.update_one(
+        {"_id": reset_record["_id"]},
+        {
+            "$set": {
+                "used": True
+            }
+        }
+    )
+
+    return redirect(url_for("login"))
 # ---------------- RUN ----------------
 if __name__ == "__main__":
     app.run(debug=True)

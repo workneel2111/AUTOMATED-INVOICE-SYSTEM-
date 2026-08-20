@@ -1,90 +1,601 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Invoice History</title>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Invoice History | Automated Invoice System</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
 
-<body class="bg-gray-100">
 
-    <div class="max-w-6xl mx-auto mt-10">
+<body class="bg-gray-100 min-h-screen">
 
-        <h1 class="text-3xl font-bold mb-6">
-            Invoice History
-        </h1>
-        <form method="GET" action="/history" class="mb-4">
 
-            <input type="text" name="search" placeholder="Search Invoice Number or Customer"
-                class="border p-2 rounded w-80">
+    <!-- ================= NAVBAR ================= -->
 
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
+    <nav class="bg-white border-b">
 
-                Search
+        <div class="max-w-7xl mx-auto px-6 py-4
+                    flex items-center justify-between">
 
-            </button>
+            <!-- Logo -->
 
-        </form>
+            <div class="flex items-center gap-3">
 
-        <table class="w-full bg-white shadow rounded">
+                <div class="w-10 h-10 bg-blue-600 text-white
+                            rounded-lg flex items-center justify-center
+                            font-bold text-xl">
 
-            <thead>
-                <tr class="bg-gray-200">
+                    ₹
 
-                    <th class="p-3">Invoice No</th>
-                    <th class="p-3">Date</th>
-                    <th class="p-3">Customer</th>
-                    <th class="p-3">Product</th>
-                    <th class="p-3">Total</th>
+                </div>
 
-                </tr>
-            </thead>
 
-            <tbody>
+                <div>
 
-                {% for invoice in invoices %}
+                    <h1 class="font-bold text-gray-800">
+                        Automated Invoice
+                    </h1>
 
-                <tr class="border-b">
+                    <p class="text-xs text-gray-500">
+                        Invoice Management System
+                    </p>
 
-                    <td class="p-3">
-                        {{ invoice.invoice_number }}
-                    </td>
+                </div>
 
-                    <td class="p-3">
-                        {{ invoice.invoice_date }}
-                    </td>
+            </div>
 
-                    <td class="p-3">
-                        {{ invoice.customer }}
-                    </td>
 
-                    <td class="p-3">
-                        {{ invoice.product }}
-                    </td>
+            <!-- Navigation -->
 
-                    <td class="p-3">
-                        INR {{ invoice.total }}
-                    </td>
-                    <td class="p-3">
-                        <a href="/delete/{{ invoice._id }}" class="bg-red-500 text-white px-3 py-1 rounded">
-                            Delete
-                        </a>
-                    </td>
-                    <td class="p-3">
-                        <a href="/edit/{{ invoice._id }}" class="bg-yellow-500 text-white px-3 py-1 rounded">
-                            Edit
-                        </a>
-                    </td>
+            <div class="flex items-center gap-3">
 
-                </tr>
 
-                {% endfor %}
+                <a
+                    href="{{ url_for('home') }}"
+                    class="hidden sm:block text-sm text-gray-600
+                           hover:text-blue-600 font-medium"
+                >
 
-            </tbody>
+                    Dashboard
 
-        </table>
+                </a>
 
-    </div>
+
+                <a
+                    href="{{ url_for('form') }}"
+                    class="bg-blue-600 hover:bg-blue-700
+                           text-white px-4 py-2 rounded-lg
+                           text-sm font-semibold transition"
+                >
+
+                    + Create Invoice
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+
+
+        <!-- ================= HEADER ================= -->
+
+        <div class="flex flex-col md:flex-row
+                    md:items-center md:justify-between
+                    gap-5 mb-8">
+
+
+            <div>
+
+                <p class="text-sm text-blue-600 font-semibold">
+                    INVOICE MANAGEMENT
+                </p>
+
+                <h2 class="text-3xl font-bold text-gray-800 mt-1">
+
+                    Invoice History
+
+                </h2>
+
+                <p class="text-gray-500 mt-2">
+
+                    View, search and manage all your generated invoices.
+
+                </p>
+
+            </div>
+
+
+            <!-- Invoice Count -->
+
+            <div class="bg-white border rounded-xl px-5 py-4">
+
+                <p class="text-xs text-gray-500 uppercase
+                          tracking-wide font-semibold">
+
+                    Total Invoices
+
+                </p>
+
+                <p class="text-2xl font-bold text-blue-600 mt-1">
+
+                    {{ invoices|length }}
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ================= SEARCH ================= -->
+
+        <div class="bg-white rounded-2xl shadow-sm border p-5 mb-6">
+
+
+            <form
+                method="GET"
+                action="{{ url_for('history') }}"
+                class="flex flex-col sm:flex-row gap-3"
+            >
+
+
+                <div class="relative flex-1">
+
+
+                    <span class="absolute left-4 top-1/2
+                                 -translate-y-1/2
+                                 text-gray-400">
+
+                        🔍
+
+                    </span>
+
+
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request.args.get('search', '') }}"
+                        placeholder="Search by invoice number or customer..."
+                        class="w-full pl-11 pr-4 py-3
+                               border border-gray-300
+                               rounded-lg outline-none transition
+                               focus:ring-2 focus:ring-blue-500
+                               focus:border-blue-500"
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="bg-blue-600 hover:bg-blue-700
+                           text-white px-6 py-3 rounded-lg
+                           font-semibold transition"
+                >
+
+                    Search
+
+                </button>
+
+
+                {% if request.args.get('search') %}
+
+                <a
+                    href="{{ url_for('history') }}"
+                    class="border border-gray-300
+                           bg-white hover:bg-gray-50
+                           text-gray-700 px-6 py-3
+                           rounded-lg font-semibold
+                           text-center transition"
+                >
+
+                    Clear
+
+                </a>
+
+                {% endif %}
+
+
+            </form>
+
+
+        </div>
+
+
+        <!-- ================= TABLE CARD ================= -->
+
+        <div class="bg-white rounded-2xl shadow-sm border
+                    overflow-hidden">
+
+
+            {% if invoices %}
+
+
+            <!-- Desktop Table -->
+
+            <div class="overflow-x-auto">
+
+
+                <table class="w-full">
+
+
+                    <!-- TABLE HEADER -->
+
+                    <thead>
+
+                        <tr class="bg-gray-50 border-b">
+
+                            <th class="px-6 py-4 text-left
+                                       text-xs font-semibold
+                                       text-gray-500 uppercase
+                                       tracking-wide">
+
+                                Invoice
+
+                            </th>
+
+
+                            <th class="px-6 py-4 text-left
+                                       text-xs font-semibold
+                                       text-gray-500 uppercase
+                                       tracking-wide">
+
+                                Date
+
+                            </th>
+
+
+                            <th class="px-6 py-4 text-left
+                                       text-xs font-semibold
+                                       text-gray-500 uppercase
+                                       tracking-wide">
+
+                                Customer
+
+                            </th>
+
+
+                            <th class="px-6 py-4 text-left
+                                       text-xs font-semibold
+                                       text-gray-500 uppercase
+                                       tracking-wide">
+
+                                Product
+
+                            </th>
+
+
+                            <th class="px-6 py-4 text-right
+                                       text-xs font-semibold
+                                       text-gray-500 uppercase
+                                       tracking-wide">
+
+                                Total
+
+                            </th>
+
+
+                            <th class="px-6 py-4 text-center
+                                       text-xs font-semibold
+                                       text-gray-500 uppercase
+                                       tracking-wide">
+
+                                Actions
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <!-- TABLE BODY -->
+
+                    <tbody class="divide-y">
+
+
+                        {% for invoice in invoices %}
+
+
+                        <tr class="hover:bg-gray-50 transition">
+
+
+                            <!-- Invoice Number -->
+
+                            <td class="px-6 py-5">
+
+
+                                <div>
+
+                                    <p class="font-semibold
+                                              text-gray-800">
+
+                                        {{ invoice.invoice_number }}
+
+                                    </p>
+
+                                    <p class="text-xs text-gray-400 mt-1">
+
+                                        Invoice
+
+                                    </p>
+
+                                </div>
+
+
+                            </td>
+
+
+                            <!-- Date -->
+
+                            <td class="px-6 py-5">
+
+                                <p class="text-sm text-gray-600">
+
+                                    {{ invoice.invoice_date }}
+
+                                </p>
+
+                            </td>
+
+
+                            <!-- Customer -->
+
+                            <td class="px-6 py-5">
+
+                                <p class="font-medium text-gray-800">
+
+                                    {{ invoice.customer }}
+
+                                </p>
+
+                            </td>
+
+
+                            <!-- Product -->
+
+                            <td class="px-6 py-5">
+
+                                <p class="text-sm text-gray-600">
+
+                                    {{ invoice.product }}
+
+                                </p>
+
+                            </td>
+
+
+                            <!-- Total -->
+
+                            <td class="px-6 py-5 text-right">
+
+                                <p class="font-bold text-gray-800">
+
+                                    ₹{{ "%.2f"|format(invoice.total) }}
+
+                                </p>
+
+                            </td>
+
+
+                            <!-- Actions -->
+
+                            <td class="px-6 py-5">
+
+
+                                <div class="flex items-center
+                                            justify-center gap-2">
+
+
+                                    <!-- View -->
+
+                                    <a
+                                        href="{{ url_for(
+                                            'verify_invoice',
+                                            invoice_number=invoice.invoice_number
+                                        ) }}"
+                                        title="View Invoice"
+                                        class="w-9 h-9 flex items-center
+                                               justify-center
+                                               rounded-lg
+                                               bg-blue-50 text-blue-600
+                                               hover:bg-blue-100 transition"
+                                    >
+
+                                        👁
+
+                                    </a>
+
+
+                                    <!-- Download -->
+
+                                    <a
+                                        href="{{ url_for(
+                                            'download',
+                                            invoice_number=invoice.invoice_number
+                                        ) }}"
+                                        title="Download PDF"
+                                        class="w-9 h-9 flex items-center
+                                               justify-center
+                                               rounded-lg
+                                               bg-green-50 text-green-600
+                                               hover:bg-green-100 transition"
+                                    >
+
+                                        ↓
+
+                                    </a>
+
+
+                                    <!-- Edit -->
+
+                                    <a
+                                        href="{{ url_for(
+                                            'edit',
+                                            id=invoice._id
+                                        ) }}"
+                                        title="Edit Invoice"
+                                        class="w-9 h-9 flex items-center
+                                               justify-center
+                                               rounded-lg
+                                               bg-yellow-50 text-yellow-600
+                                               hover:bg-yellow-100 transition"
+                                    >
+
+                                        ✎
+
+                                    </a>
+
+
+                                    <!-- Delete -->
+
+                                    <a
+                                        href="{{ url_for(
+                                            'delete',
+                                            id=invoice._id
+                                        ) }}"
+                                        title="Delete Invoice"
+                                        onclick="return confirm(
+                                            'Are you sure you want to delete this invoice?'
+                                        );"
+                                        class="w-9 h-9 flex items-center
+                                               justify-center
+                                               rounded-lg
+                                               bg-red-50 text-red-600
+                                               hover:bg-red-100 transition"
+                                    >
+
+                                        🗑
+
+                                    </a>
+
+
+                                </div>
+
+
+                            </td>
+
+
+                        </tr>
+
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+            {% else %}
+
+
+            <!-- ================= EMPTY STATE ================= -->
+
+            <div class="py-20 px-6 text-center">
+
+
+                <div class="w-16 h-16 mx-auto bg-gray-100
+                            rounded-2xl flex items-center
+                            justify-center text-3xl">
+
+                    📄
+
+                </div>
+
+
+                <h3 class="text-xl font-bold text-gray-800 mt-5">
+
+                    No invoices found
+
+                </h3>
+
+
+                <p class="text-gray-500 mt-2 max-w-md mx-auto">
+
+                    {% if request.args.get('search') %}
+
+                    No invoices match your search.
+                    Try a different invoice number or customer name.
+
+                    {% else %}
+
+                    You haven't created any invoices yet.
+                    Create your first invoice to get started.
+
+                    {% endif %}
+
+                </p>
+
+
+                <a
+                    href="{{ url_for('form') }}"
+                    class="inline-block mt-6
+                           bg-blue-600 hover:bg-blue-700
+                           text-white px-6 py-3 rounded-lg
+                           font-semibold transition"
+                >
+
+                    + Create Invoice
+
+                </a>
+
+
+            </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+
+        <!-- ================= FOOTER INFO ================= -->
+
+        <div class="mt-6 flex flex-col sm:flex-row
+                    items-center justify-between
+                    gap-3 text-xs text-gray-400">
+
+
+            <p>
+
+                🔒 Your invoice data is securely managed.
+
+            </p>
+
+
+            <p>
+
+                Automated Invoice System © 2026
+
+            </p>
+
+
+        </div>
+
+
+    </main>
+
 
 </body>
 
